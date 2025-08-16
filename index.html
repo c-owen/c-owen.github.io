@@ -1,41 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chuck Owen</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, sans-serif;
-      background-color: #f7f7f7;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin: 0.5em 0;
-    }
-    p {
-      font-size: 1.2rem;
-      color: #555;
-    }
-    .email {
-      margin-top: 1em;
-      font-size: 1rem;
-      color: #0066cc;
-      text-decoration: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuck Owen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #000;
+            background: #fff;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            font-weight: normal;
+            margin-bottom: 20px;
+        }
+        
+        nav {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        nav a {
+            color: #000;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        
+        nav a:hover {
+            text-decoration: underline;
+        }
+        
+        section {
+            margin-bottom: 60px;
+        }
+        
+        h2 {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            font-weight: normal;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .paper {
+            margin-bottom: 20px;
+            padding-left: 20px;
+            border-left: 2px solid #000;
+        }
+        
+        .paper-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .paper-title a {
+            color: #000;
+            text-decoration: none;
+        }
+        
+        .paper-title a:hover {
+            text-decoration: underline;
+        }
+        
+        .paper-authors {
+            font-size: 0.9em;
+            color: #333;
+            font-style: italic;
+        }
+        
+        .paper-venue {
+            font-size: 0.9em;
+            color: #555;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .article {
+            margin-bottom: 25px;
+        }
+        
+        .article-title {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .article-title a {
+            color: #000;
+            text-decoration: none;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .article-title a:hover {
+            border-bottom: 1px solid #000;
+        }
+        
+        .tag {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+            margin-left: 8px;
+        }
+        
+        .article-blurb {
+            font-size: 0.95em;
+            color: #333;
+            line-height: 1.5;
+            padding-left: 15px;
+        }
+        
+        footer {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
 </head>
 <body>
-  <h1>Chuck Owen</h1>
-  <p>Software Engineer & Engineering Leader</p>
-  <a class="email" href="mailto:contact@chuckowen.co">contact@chuckowen.co</a>
+    <header>
+        <h1>Chuck Owen</h1>
+        <nav>
+            <a href="#research">research</a>
+            <a href="#leadership">leadership</a>
+            <a href="#engineering">engineering</a>
+        </nav>
+    </header>
+
+    <section id="research">
+        <h2>Research</h2>
+        
+        <div class="paper">
+            <div class="paper-title">
+                <a href="#">Your First Paper Title Here</a>
+            </div>
+            <div class="paper-authors">
+                Your Name, Collaborator Names
+            </div>
+            <div class="paper-venue">
+                Conference 2024
+            </div>
+        </div>
+    </section>
+
+    <section id="leadership">
+        <h2>Leadership</h2>
+        
+        <div class="article">
+            <div class="article-title">
+                <a href="/articles/your-leadership-article.html">Your Leadership Article Title</a>
+            </div>
+            <div class="article-blurb">
+                A compelling one-liner that makes people want to click and read more about your insights.
+            </div>
+        </div>
+    </section>
+
+    <section id="engineering">
+        <h2>Engineering</h2>
+        
+        <div class="article">
+            <div class="article-title">
+                <a href="/articles/your-engineering-article.html">Your Engineering Article Title</a>
+                <span class="tag">[ai]</span>
+            </div>
+            <div class="article-blurb">
+                An enticing description of your technical insights, whether about AI, distributed systems, or software architecture.
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        contact: chuck [at] chuckowen.co
+    </footer>
 </body>
 </html>
