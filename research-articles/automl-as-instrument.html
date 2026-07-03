@@ -74,26 +74,22 @@
             hyphens: auto;
         }
 
-        table {
-            border-collapse: collapse;
-            margin: 30px auto;
-            font-size: 0.9em;
+        figure {
+            margin: 30px 0;
         }
 
-        th, td {
-            border: 1px solid #ccc;
-            padding: 6px 14px;
-            text-align: right;
+        figure img {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
         }
 
-        th:first-child, td:first-child {
-            text-align: left;
-        }
-
-        th {
+        figcaption {
             font-family: 'Courier New', monospace;
-            font-weight: normal;
-            background: #f7f7f7;
+            font-size: 0.8em;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
         }
 
         code {
@@ -139,15 +135,17 @@
 
         <p>So the live question changed. Not "can the tool beat the agent" — that's a treadmill, the agent always escapes the box — but: with the model family locked, does a tool make the agent's remaining work more efficient or more reliable? The second study fixes XGBoost everywhere and runs four conditions on three datasets: a default-config floor, a pure TPE tuner with no AI, the agent alone, and the agent plus the BO tool. I decided the metric up front, because with the family fixed, everyone competent lands near the same final score and "did the tool improve accuracy" was always going to read as a null. The honest axes are sample efficiency, run-to-run consistency, and what the search costs in agent reasoning.</p>
 
-        <table>
-            <tr><th>electricity</th><th>final logloss</th><th>agent tokens</th></tr>
-            <tr><td>agent alone</td><td>0.1358</td><td>68k</td></tr>
-            <tr><td>agent + BO tool</td><td>0.1369</td><td>47k</td></tr>
-            <tr><td>TPE tuner, no AI</td><td>0.1558</td><td>0</td></tr>
-            <tr><td>default XGBoost</td><td>0.2296</td><td>—</td></tr>
-        </table>
+        <figure>
+            <img src="images/automl/fig1_study2_bsf.png" alt="Best-so-far validation logloss versus configurations evaluated for the three tasks: the agent arms sit below the no-LLM TPE tuner on every task, with default XGBoost as a dotted ceiling">
+            <figcaption>best-so-far val_logloss vs configurations evaluated; A = agent, A+T = agent + tool, R = TPE, dotted = default XGBoost</figcaption>
+        </figure>
 
         <p>Findings so far, at three seeds per cell and descriptive rather than inferential. The agent beats the pure tuner on final score on all three datasets, and the sharper version of that result is that the tuner never gets there at all: across twenty seeds per task, the no-AI tuner never lands within ten percent of the pooled best solution. It can't — it's confined to fixed preprocessing, and the winning region is reachable only through pipeline work. Second, the agent alone is the most sample-efficient searcher; the with-tool arm's early BO exploration slightly worsens its area-under-the-budget-curve on every task. The tool does not improve the search. Third, and this is the interesting one: the tool's actual value is cost. The with-tool agent spends roughly a quarter to a third fewer output tokens and about half the dollars, not because it reasons more efficiently — reasoning per hand-run trial is nearly identical — but because BO episodes consume trial budget without consuming any LLM at all. Mechanical offload, not augmentation. Final scores are equivalent everywhere, so the offload comes at no cost in quality.</p>
+
+        <figure>
+            <img src="images/automl/fig6_offload.png" alt="Two bar charts: agent output tokens drop substantially with the tool on all three tasks, while turns per agent-trial stay roughly equal">
+            <figcaption>the tool cuts total agent tokens (left) without changing reasoning per hand-run trial (right)</figcaption>
+        </figure>
 
         <p>Which is the thesis in one line: the boundary moves, the roles recompose. The agent does the parts AutoML was never good at — knowing the right model on sight, engineering the pipeline — and the optimizer gets demoted from autonomous driver to a subroutine the agent calls when systematic search is cheaper than thinking. The canonical survey asked for human-guided, non-black-box ML as an open problem; an LLM agent that reaches for tools appears to be what that looks like in practice.</p>
 
