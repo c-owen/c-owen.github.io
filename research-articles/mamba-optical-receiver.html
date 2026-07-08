@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mamba as a Coherent Optical Receiver - Chuck Owen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #000;
+            background: #fff;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 60px;
+        }
+
+        .site-name {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .site-name a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .site-name a:hover {
+            text-decoration: underline;
+        }
+
+        nav {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        nav span {
+            margin: 0 5px;
+        }
+
+        article {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            font-weight: normal;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .status-line {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .status-line a {
+            color: #666;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        figure {
+            margin: 30px 0;
+        }
+
+        figure img {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        figcaption {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            color: #666;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        a {
+            color: #000;
+        }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="site-name">
+            <a href="/">← Chuck Owen</a>
+        </div>
+        <nav>
+            home <span>/</span> research
+        </nav>
+    </header>
+
+    <article>
+        <h1>Mamba as a Coherent Optical Receiver</h1>
+        <div class="status-line">deep learning final project, NJIT — <a href="https://github.com/c-owen/mamba-optical-spectra">code</a> · <a href="https://youtu.be/HNuZOkNKnKM">video</a></div>
+
+        <p>I've spent a good part of my career on optical communications programs, where the digital signal processing chain is a hand-built thing: an FIR filter for chromatic dispersion, a phase-locked loop for carrier recovery, block after block designed and tuned by specialists whose hours are the most expensive line in the budget. The blocks work, but they're rigid — a new impairment or a hardware revision means re-engineering the chain, not retraining it. So when a deep learning course handed me a final project, the question picked itself: can one learned model replace the chain?</p>
+
+        <p>Coherent links fight two kinds of damage. Chromatic dispersion smears a pulse's energy into its neighbors — into both past and future symbol slots, which matters later. Phase noise from laser linewidth rotates the constellation as a random walk. The usual deep learning candidates each fail one of these on principle: a CNN has a fixed receptive field and no memory, so it can't track a drifting phase, and a transformer's attention scales quadratically with sequence length — at the L=4096 windows dispersion compensation wants, that's roughly sixteen million interactions per layer against Mamba's four thousand. Mamba is a state-space model, a discretized differential equation with a selection mechanism that decides per-input what to remember and what to reset. A fiber channel is also a differential equation. The architecture and the physics rhyme, which is most of why I picked it.</p>
+
+        <p>Before trusting the architecture with waveforms I ran a cheaper sanity check: classifying power spectral density snapshots into five operating states — stable single mode, mode hop, clipped, high noise, multi-mode. A baseline 1D CNN reached 90.33% test accuracy; the official mamba-ssm implementation reached 97%, after a stretch of NaN loss explosions that learning-rate surgery eventually fixed. Good enough to proceed to the real problem.</p>
+
+        <p>The real problem is a neural receiver for QPSK. I built a physics simulation of the channel — the optical field as a complex time series, dispersion applied as a quadratic phase response in the frequency domain, phase noise as a Wiener process, amplifier noise as AWGN — and asked models to recover the transmitted symbols directly from the impaired waveform. One early finding: training on fully impaired signals goes nowhere. The models needed a curriculum, learning clean constellation de-mapping first and taking on dispersion and phase noise in escalating doses.</p>
+
+        <p>Each architecture turned out to be a learned analogue of a classical DSP block, failure modes included. In the phase-noise-heavy configuration (100 kHz linewidth, low dispersion), the CNN managed 74.11% — like the FIR filter it resembles, it has no state and can't hold a phase lock. A causal Mamba hit 98.87%; its recurrent hidden state behaves like a trained PLL, continuously re-estimating phase error from history. Then I turned the dispersion up to 20 ps/nm/km and the causal model collapsed to 79.31%, for a reason the physics predicts: dispersion is non-causal, energy arrives from future symbols as well as past ones, and a model that only looks backward is blind to half the interference. Running a second Mamba over the time-reversed sequence and fusing the two states fixed exactly that. The bidirectional model reached 99.26%.</p>
+
+        <figure>
+            <img src="images/mamba/confusion_matrix.png" alt="Confusion matrix for bidirectional Mamba symbol recovery under high dispersion: nearly all mass on the diagonal across the four QPSK quadrants">
+            <figcaption>bidirectional mamba symbol recovery under high dispersion, before FEC</figcaption>
+        </figure>
+
+        <p>And here's where the project stopped being a modeling exercise and became an engineering one: 99.26% accuracy is a terrible receiver. The residual errors aren't sprinkled at random — under high phase noise the model occasionally loses its lock, the constellation rotates a quarter turn, and every symbol is wrong until the model re-acquires. Classical receivers bound this with PLL loop bandwidth; a neural receiver has no such guarantee. Hamming codes, built for sparse random flips, drown in these bursts. The raw output ran a bit error rate of 1.6&times;10<sup>-3</sup>; Hamming alone improved it to 4.2&times;10<sup>-4</sup> and still failed to close the link.</p>
+
+        <p>The fix is old telecom, not new ML: a matrix block interleaver, depth 42. Write the symbols into a matrix row by row, read them out column by column, and a contiguous burst of forty errors becomes forty isolated errors scattered across forty different code blocks — exactly the failure Hamming was designed for. With the interleaver in place, the same code that had been drowning delivered error-free transmission, post-FEC BER below 10<sup>-6</sup>, over the simulated 100 km link.</p>
+
+        <figure>
+            <img src="images/mamba/interleaver.png" alt="Two grids: a contiguous horizontal burst of eight errors on the left becomes vertically scattered single-bit errors on the right after interleaving">
+            <figcaption>the interleaver turns one burst into many single-bit errors the decoder can handle</figcaption>
+        </figure>
+
+        <p>Two implementation details cost me more time than the architecture did. Standard batch normalization treats each feature independently, and normalizing I and Q separately destroys the relative phase between them — which in QPSK is where the data lives. The receiver only trained once I scaled both components together against global signal power. And past a few layers the Mamba stack wouldn't train at all until I added pre-norm residual connections, giving gradients a clean path and letting the deeper blocks default to identity.</p>
+
+        <figure>
+            <img src="images/mamba/waterfall.png" alt="BER versus SNR waterfall plot for three channel regimes: benign short-reach drops to error-free by 14 dB, standard hovers near the FEC threshold, stress stays an order of magnitude above it">
+            <figcaption>pre-FEC BER vs SNR across three channel regimes; the stress condition marks the model's breakdown boundary</figcaption>
+        </figure>
+
+        <p>The caveats are real. This is a simulated channel, not fiber. Inference throughput is nowhere near the sub-nanosecond budget of an 800G ASIC, and the hyperparameters are barely tuned — the waterfall curve in the stress regime is a boundary of my effort as much as of the architecture. But the throughput objection has an expiration date as SSM hardware matures, and the interesting result was never speed. It's that a single model learned dispersion compensation and carrier recovery jointly, with no explicit mathematics of either, plus the sobering corollary that raw model accuracy means nothing for a communications system until the error <em>structure</em> is engineered for. A learned receiver also suggests stranger things: a transmitter and receiver trained jointly become a modulation format that exists nowhere but in their shared weights, and a model that has absorbed a channel's physics is the seed of a digital twin for the network it lives in. Those are speculative. The error-free 100 km link is not.</p>
+    </article>
+
+    <footer>
+        contact: chuck [at] chuckowen.co
+    </footer>
+    <script data-goatcounter="https://chuckowen.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

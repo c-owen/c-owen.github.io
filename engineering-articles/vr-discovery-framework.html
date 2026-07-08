@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Executability - Chuck Owen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #000;
+            background: #fff;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 60px;
+        }
+
+        .site-name {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .site-name a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .site-name a:hover {
+            text-decoration: underline;
+        }
+
+        nav {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        nav span {
+            margin: 0 5px;
+        }
+
+        article {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            font-weight: normal;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .status-line {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .status-line a {
+            color: #666;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        a {
+            color: #000;
+        }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="site-name">
+            <a href="/">← Chuck Owen</a>
+        </div>
+        <nav>
+            home <span>/</span> engineering
+        </nav>
+    </header>
+
+    <article>
+        <h1>Manufacturing Executability</h1>
+        <div class="status-line">a personal project on finding memory-safety bugs in binaries without source</div>
+
+        <p>The interesting problem in automated vulnerability research is not the analysis. If you already have a program that runs and takes input, you can point a fuzzer at it and let coverage do the work — that part is a solved, crowded space. The hard part, the part nobody hands you, is getting a piece of compiled software into a state where it can be run and fuzzed at all. Router firmware that won't boot without the right NVRAM values. A single vulnerable function buried in a stripped binary with no entry point and no exported symbol to call it by. A daemon that only speaks over a socket. I built a pipeline whose whole thesis is that <em>manufacturing executability</em> is the wedge, and everything downstream is plumbing you can swap out.</p>
+
+        <p>Two capabilities carry that thesis. The first is harness synthesis: take a function that cannot be reached by running the whole program and wrap it in a small, compilable driver that calls it directly, so a fuzzer has something to hammer. That sounds simple until the binary is stripped firmware, where there is no symbol table to tell you the function even exists — so the pipeline falls back to reading the <code>PT_DYNAMIC</code> segment to recover exports and their load-bias addresses, and calls the function by raw offset through <code>dlopen</code> when there's no name to link against. It does this cross-architecture, running mipsel firmware under QEMU with the right sysroot. The second capability is agentic re-hosting: an iterative bring-up loop that tries to run a stubborn binary under emulation, watches how it fails, proposes a configuration fix, and retries until it runs or gives up honestly.</p>
+
+        <p>Both of those are where I put a language model in the loop, and I was deliberate about <em>where</em>. Harness synthesis has two tiers behind one interface. The template tier makes a generic <code>(buffer, length)</code> call and admits it's guessing at the function's real shape. The faithful tier hands Claude the decompiled function body and its recovered signature and asks it to write the actual call — the right struct, the right fields, the right setup — then drops that fragment into a fixed scaffold and owns the compile-read-errors-fix loop itself. Same structure on re-hosting: a cheap heuristic advisor handles the common failure patterns, and Claude only fires on the novel ones the rules can't classify. The model does the open-ended reasoning; the deterministic scaffold does everything that has to be trustworthy.</p>
+
+        <p>Which brings me to the invariant the whole system is built around, the one I care about most — the one I labeled "proof, not slop" in the code. Nothing gets reported as a confirmed finding unless a crash <em>reproduces under an oracle every single time</em> — three runs out of three by default. Static analysis that says "this looks dangerous" still exists, but it's labeled a candidate and never confused with a confirmation. The reason this matters is that automated security tools have a credibility problem, and the fastest way to destroy a security researcher's credibility is to hand a maintainer a wall of "potential vulnerabilities" that waste their afternoon and reproduce none of the time. A confirmed finding here is backed by the same AddressSanitizer evidence a maintainer would use to triage the fix. If the campaign runs and the fuzzer never reaches the bug inside its budget, that's reported as exactly that — a bounded run that didn't reach it — which is an honest, useful outcome, not a failure to paper over.</p>
+
+        <p>The honesty goes deeper than a binary confirmed/not-confirmed, because a reproduced crash can still be quietly misleading. A synthesized harness calls a function directly, which severs it from the program's real input path — so a crash there proves the function is fragile, not that an attacker can reach it. I refused to let the system blur those two things. Every confirmed finding carries two extra axes. Signature confidence tracks whether the synthesized call is actually faithful to how the function is really invoked: <code>ASSUMED</code> for the template guess, <code>RECOVERED_UNVERIFIED</code> when the model wrote a call that compiled but nothing corroborates it's semantically right, and <code>CONFIRMED</code> only when the reproduced fault lands <em>inside</em> the target function per the crash's symbolized stack frames. Because a call that merely compiles proves nothing — a wrong field, a wrong gate, a wrong struct all compile fine. The second axis is reachability, and to earn it the pipeline does front-door fuzzing: it runs the whole real program and delivers fuzz input through the program's actual socket using an <code>LD_PRELOAD</code> desock shim, so any crash it finds is reachable by construction. I proved that path on uhttpd, a real OpenWrt web service.</p>
+
+        <p>For an end-to-end check against something real rather than my own planted bugs, the primary validation target is JasPer 2.0.24, a JPEG-2000 codec with a known heap buffer over-read, CVE-2021-3272, that was fixed in the next version. A detail from that run is the whole philosophy in miniature. It's an out-of-bounds <em>read</em>, so a normal build just keeps running — no segfault, no signal, nothing to catch — and only the AddressSanitizer oracle path sees it. And I was strict about the seed corpus: it's assembled "bug-blind," from the format's ordinary sample images with no reference to the vulnerable code path, so that any crash is genuinely the fuzzer's discovery and not something I smuggled in through a hand-crafted seed. The moment you let the corpus know where the bug is, you're not testing whether the system can find bugs anymore. You're testing whether you can.</p>
+
+        <p>The architecture underneath is a blackboard of typed artifacts moving through interchangeable slots — ingest, decompile, reason, synthesize a harness, re-host, generate inputs, and the one mandatory confirmation oracle they all feed. Any stage swaps out without touching the others: the fuzzer, the decompiler, the LLM advisor, the harness synthesizer are all seams by design, mirroring the execution backend, which is a local Docker container today and could be a remote box tomorrow. I built it that way partly out of engineering taste and partly because vulnerability research tooling ages fast, and a pipeline welded to one fuzzer or one model is a pipeline with an expiration date.</p>
+
+        <p>The honest caveats: this is my own project, run against a bounded set of validation targets, and the flashiest capabilities — faithful cross-architecture harness synthesis on stripped firmware — are the ones with the most moving parts and the most ways to be subtly wrong, which is exactly why the signature-confidence axis exists rather than a green checkmark. I'd rather ship a system that undersells a shaky finding than one that oversells a lucky one. Everything about how it's built comes back to that preference.</p>
+    </article>
+
+    <footer>
+        contact: chuck [at] chuckowen.co
+    </footer>
+    <script data-goatcounter="https://chuckowen.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
+                 

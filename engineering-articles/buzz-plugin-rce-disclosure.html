@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomy of a Plugin-Install RCE - Chuck Owen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #000;
+            background: #fff;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 60px;
+        }
+
+        .site-name {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .site-name a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        .site-name a:hover {
+            text-decoration: underline;
+        }
+
+        nav {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        nav span {
+            margin: 0 5px;
+        }
+
+        article {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            font-weight: normal;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .status-line {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .status-line a {
+            color: #666;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        a {
+            color: #000;
+        }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="site-name">
+            <a href="/">← Chuck Owen</a>
+        </div>
+        <nav>
+            home <span>/</span> engineering
+        </nav>
+    </header>
+
+    <article>
+        <h1>Anatomy of a Plugin-Install RCE</h1>
+        <div class="status-line">responsible disclosure — reported to the maintainer before any release shipped</div>
+
+        <p>I use Buzz, an offline Whisper-based transcription app, and I like it — it's the kind of small, honest, offline-first desktop tool that does one thing well. I'd already written a <a href="/engineering-articles/sanitizer-buzz-plugin.html">plugin for it</a>, so when a plugin system landed on the main branch I went reading through how it loaded them. What I found was a plugin-installation flow that runs untrusted code on your machine, and I want to walk through it plainly, because the bug is not exotic. It's an ordinary sequencing mistake, the kind that's easy to make and easy to miss, and that's exactly why it's worth writing up.</p>
+
+        <p>Before anything else, the framing, because it governs how I handled this. The plugin feature is not in any shipped release — it exists only on the unreleased main branch. That's the good-news version of a disclosure: the fix can land before a single user is ever exposed. So I reported it privately to the maintainer through the repository's advisory channel, kept my proof-of-concept benign, and wrote it up against the unreleased branch rather than any version people are running today. To be fair about severity, this is not categorically worse than the plugin models in tools people trust every day — a lot of editor and IDE extension ecosystems also execute plugin code on install without a real root of trust. The difference worth fixing is that here there's no signature, no hash, and no transport authentication anywhere in the chain.</p>
+
+        <p>Here's the shape of it. Installing a plugin takes a URL, downloads a zip, and loads it. Three things go wrong in sequence. First, the download uses a plain URL fetch with no scheme check, so <code>http://</code> is accepted alongside <code>https://</code> — which means someone positioned to tamper with your network traffic can substitute the archive in transit, and you never had to do anything wrong beyond installing a plugin you believed was legitimate. Second, and this is the core mistake, the loader executes the plugin's entry module — runs its top-level code — <em>before</em> the check that the archive is even a valid plugin, and before it's committed to the plugins directory. So the "is this a real plugin?" validation happens by importing and running it. A zip that fails validation has already executed its code by the time it's rejected. Third, there's no integrity check at all: no signature to verify, no hash to confirm out of band, nothing pinning the publisher.</p>
+
+        <p>There's a fourth path that's almost worse because it's quieter. A plugin declares its dependencies, and those declared dependencies are passed straight to a package install with no validation — no name allowlist, no index pinning. That means a plugin with a completely empty entry file can still run code, purely through what it claims to depend on, because a fetched source package executes its own setup step at install time, and option-like or URL-style entries in that dependency list become argument injection into the installer. Two independent roads to the same place: arbitrary code running with your privileges.</p>
+
+        <p>My proof-of-concept was deliberately dull, which is the point of a responsible one. A standalone server that imports nothing from the app builds and serves a plugin zip over plaintext, and you paste the URL into the plugin dialog. Three cases. A well-formed plugin runs a harmless marker action and persists — the ordinary path. An <em>invalid</em> plugin, one with no valid plugin class in it, runs the same marker action and <em>then</em> shows you the "this isn't a valid plugin" error — which is the whole finding in one screen: the code ran before the rejection. And a third case declares a nonexistent canary dependency, and you watch the app dutifully invoke the package installer against it, proving the dependency path is reached. No calculator-popping theater, no exfiltration, nothing that leaves a mess. Just enough to demonstrate each claim is true.</p>
+
+        <p>The remediation is not complicated, which is the frustrating and hopeful part of most bugs like this. Require <code>https://</code> and reject other schemes. Validate the archive by inspecting its metadata without importing it — never use "run it and see if it crashes" as your validation step. Pin integrity with a signature or a hash the user confirms out of band, or at minimum put an explicit "this plugin will run code on your computer" consent gate in front of the install. And constrain the declared dependencies: validate the names, forbid option-like and URL-style entries, pin the index, and do the install somewhere isolated. None of this is novel security engineering. It's the difference between running code and then asking whether you should have, versus asking first.</p>
+
+        <p>The reason I bothered writing this up beyond the private report is that the underlying pattern — execution as a side effect of validation — shows up constantly once you start looking for it, in plugin loaders and config parsers and anything that "just imports" a file to inspect it. The offline-first tools are the ones where it stings most, because their entire promise is that your data stays on your machine, and an install-time code-execution path quietly voids that promise. Buzz is a good project run by responsive people, and catching this before it ever shipped is the version of this story I wanted to be able to tell.</p>
+    </article>
+
+    <footer>
+        contact: chuck [at] chuckowen.co
+    </footer>
+    <script data-goatcounter="https://chuckowen.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

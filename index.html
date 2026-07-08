@@ -45,6 +45,23 @@
         nav a:hover {
             text-decoration: underline;
         }
+
+        .intro {
+            margin-top: 30px;
+            font-size: 1.05em;
+            line-height: 1.7;
+        }
+
+        .links {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 15px;
+        }
+
+        .links a {
+            color: #666;
+        }
         
         section {
             margin-bottom: 60px;
@@ -153,18 +170,24 @@
             <a href="#leadership">leadership</a>
             <a href="#engineering">engineering</a>
         </nav>
+        <p class="intro">I spent years writing embedded software for optical communications systems before crossing over to running the programs that build them. These days that means directing a large multi-discipline engineering program, standing up AI research efforts and seeing them through to funding, and finishing an M.S. in artificial intelligence at NJIT in whatever hours are left. This site is where I write: research I'm running, what leading engineering teams has taught me, and the things I build when a problem won't leave me alone.</p>
+        <div class="links">
+            <a href="https://www.linkedin.com/in/charlesleeowen">linkedin</a> · chuck [at] chuckowen.co
+        </div>
     </header>
 
     <section id="research">
         <h2>Research</h2>
         <div class="orcid">orcid: <a href="https://orcid.org/0009-0001-9894-9083">0009-0001-9894-9083</a></div>
 
-        <div class="paper">
-            <div class="paper-title">
-                <a href="/research-articles/failure-modes-llm-automl.html">Failure Modes and Remediations in LLM-Driven Automated Machine Learning: A Case Study on Network Intrusion Detection</a>
+        <div class="article">
+            <div class="article-title">
+                <a href="/research-articles/mamba-optical-receiver.html">Mamba as a Coherent Optical Receiver</a>
+                <span class="tag">[state-space models]</span>
             </div>
-            <div class="paper-authors">Chuck Owen</div>
-            <div class="paper-venue"><a href="https://ssrn.com/abstract=6484501">ssrn</a> · <a href="https://www.researchgate.net/publication/403242215_Failure_Modes_and_Remediations_in_LLM-Driven_Automated_Machine_Learning_A_Case_Study_on_Network_Intrusion_Detection">researchgate</a></div>
+            <div class="article-blurb">
+                A bidirectional state-space model that learns a receiver's DSP chain from data: dispersion, phase noise, and the error-correction plumbing it took to close the link. From a deep learning course project that got out of hand.
+            </div>
         </div>
 
         <div class="article">
@@ -175,6 +198,14 @@
             <div class="article-blurb">
                 An LLM research agent already knows which model to pick and wins by engineering the pipeline. The optimizer's remaining job is being a cheap subroutine. Findings so far from an ongoing study.
             </div>
+        </div>
+
+        <div class="paper">
+            <div class="paper-title">
+                <a href="/research-articles/failure-modes-llm-automl.html">Failure Modes and Remediations in LLM-Driven Automated Machine Learning: A Case Study on Network Intrusion Detection</a>
+            </div>
+            <div class="paper-authors">Chuck Owen</div>
+            <div class="paper-venue"><a href="https://ssrn.com/abstract=6484501">ssrn</a> · <a href="https://www.researchgate.net/publication/403242215_Failure_Modes_and_Remediations_in_LLM-Driven_Automated_Machine_Learning_A_Case_Study_on_Network_Intrusion_Detection">researchgate</a></div>
         </div>
     </section>
 
@@ -217,29 +248,24 @@
 
         <div class="article">
             <div class="article-title">
-                <a href="/engineering-articles/sanitizer-buzz-plugin.html">Sanitizer: Scrub Transcripts Before the LLM Sees Them</a>
-                <span class="tag">[privacy]</span>
+                <a href="/engineering-articles/vr-discovery-framework.html">Manufacturing Executability</a>
+                <span class="tag">[security]</span>
             </div>
             <div class="article-blurb">
-                A Buzz plugin that swaps names, PII, and codenames for placeholders before a transcript goes to a cloud LLM, then restores the reply. The key never leaves your machine, and if a removal can't be confirmed, there is no output.
+                A pipeline that finds memory-safety bugs in binaries with no source, then proves each one with a crash that reproduces every time. The hard part isn't the analysis — it's manufacturing a way to run code that was never meant to be run on its own.
             </div>
         </div>
 
         <div class="article">
             <div class="article-title">
-                <a href="/engineering-articles/meowplotlib-cats-on-your-charts.html">meowplotlib: Cats on Your Charts</a>
-                <span class="tag">[python]</span>
+                <a href="/engineering-articles/buzz-plugin-rce-disclosure.html">Anatomy of a Plugin-Install RCE</a>
+                <span class="tag">[disclosure]</span>
             </div>
             <div class="article-blurb">
-                I published a Python package that puts cats on your matplotlib charts. One import, and every figure you save has company. The cats never sit on your data.
+                A transcription app I use added a plugin system. Installing a plugin ran its code before checking whether it was valid, over plaintext HTTP, with no signature. A walk through the finding and the responsible-disclosure report I filed.
             </div>
         </div>
-    </section>
 
-    <footer>
-        contact: chuck [at] chuckowen.co
-    </footer>
-    <script data-goatcounter="https://chuckowen.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
-</body>
-</html>
+        <div class="article">
+            <div class="article-title">
+                <a href="/engineering-articles/sanitizer-buzz-plugin.html">Sa
