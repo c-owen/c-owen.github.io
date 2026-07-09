@@ -61,16 +61,6 @@
             margin-bottom: 20px;
         }
 
-        .paper-link {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            margin-bottom: 40px;
-        }
-
-        .paper-link a {
-            color: #000;
-        }
-
         p {
             margin-bottom: 20px;
             text-align: justify;
@@ -116,9 +106,6 @@
 
     <article>
         <h1>Failure Modes and Remediations in LLM-Driven Automated Machine Learning: A Case Study on Network Intrusion Detection</h1>
-        <div class="paper-link">
-            <a href="https://ssrn.com/abstract=6484501">paper on SSRN</a> · <a href="https://www.researchgate.net/publication/403242215_Failure_Modes_and_Remediations_in_LLM-Driven_Automated_Machine_Learning_A_Case_Study_on_Network_Intrusion_Detection">researchgate</a>
-        </div>
 
         <p>The setup is simple to describe. Take Karpathy's autoresearch idea, where an LLM sits in a closed loop rewriting its own experiment code and reacting to the scores, and point it at tabular classification: binary network intrusion detection on CICIDS-2017, about 2.8 million labeled flow records. Claude Sonnet 4.6 rewrites a detector script each iteration; the script runs as a subprocess against a 300-second training budget; a fixed evaluator the agent is never allowed to touch scores it against a held-out test set. A separate Haiku instance compresses the experiment ledger into 400 tokens after each run so the history fits in context. I ran four sessions, 27 iterations in all, on a consumer CPU with no GPU. Total API cost for the whole study: about $3.15.</p>
 
@@ -141,7 +128,7 @@
 
         <p>One behavioral observation that didn't fit the taxonomy but stayed with me: despite explicit instructions to explore diverse architectures, Sonnet kept returning to the same HGB + RF + ExtraTrees ensemble across all four sessions. Its implicit preference for the near-optimal answer overrode the diversity instructions every time. The only two non-tree attempts in 27 runs were PyTorch MLPs, and both timed out. If you want an agent to explore, you apparently have to build the curriculum into the harness; asking nicely does not work.</p>
 
-        <p>The framework is open source, dataset-agnostic, and introspects whatever tabular dataset you point it at to build its own prompt context. The full paper, with the run-by-run table and the concrete remediations, is on <a href="https://ssrn.com/abstract=6484501">SSRN</a> and <a href="https://www.researchgate.net/publication/403242215_Failure_Modes_and_Remediations_in_LLM-Driven_Automated_Machine_Learning_A_Case_Study_on_Network_Intrusion_Detection">ResearchGate</a>.</p>
+        <p>The framework is open source, dataset-agnostic, and introspects whatever tabular dataset you point it at to build its own prompt context.</p>
     </article>
 
     <footer>
