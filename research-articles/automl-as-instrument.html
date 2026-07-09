@@ -147,7 +147,7 @@
             <figcaption>the tool cuts total agent tokens (left) without changing reasoning per hand-run trial (right)</figcaption>
         </figure>
 
-        <p>Which is the thesis in one line: the boundary moves, the roles recompose. The agent does the parts AutoML was never good at — knowing the right model on sight, engineering the pipeline — and the optimizer gets demoted from autonomous driver to a subroutine the agent calls when systematic search is cheaper than thinking. The canonical survey asked for human-guided, non-black-box ML as an open problem; an LLM agent that reaches for tools appears to be what that looks like in practice.</p>
+        <p>So the division of labor flips. The agent does the parts AutoML was never good at — knowing the right model on sight, engineering the pipeline — and the optimizer gets demoted from autonomous driver to a subroutine the agent calls when systematic search is cheaper than thinking. The canonical survey asked for human-guided, non-black-box ML as an open problem; an LLM agent that reaches for tools appears to be what that looks like in practice.</p>
 
         <p>A methodological confession that cost me a metric: I intended to measure efficiency in compute-seconds, then realized my wall-clock numbers were contaminated — some runs shared the machine with unrelated background work. Configurations-evaluated and reasoning tokens are the clean, machine-independent axes, so those are the headline measures; the harness now logs CPU time properly for future runs. And the standing caveats: three seeds is three seeds (the protocol targets five on headline cells), and everything above is subject to revision as the remaining runs land.</p>
 
