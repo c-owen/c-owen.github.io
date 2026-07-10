@@ -10,7 +10,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: Georgia, 'Times New Roman', serif;
             line-height: 1.6;
@@ -20,30 +20,15 @@
             margin: 0 auto;
             padding: 40px 20px;
         }
-        
+
         header {
             margin-bottom: 60px;
         }
-        
+
         h1 {
             font-size: 2.5em;
             font-weight: normal;
             margin-bottom: 20px;
-        }
-        
-        nav {
-            font-family: 'Courier New', monospace;
-            font-size: 0.95em;
-        }
-        
-        nav a {
-            color: #000;
-            text-decoration: none;
-            margin-right: 20px;
-        }
-        
-        nav a:hover {
-            text-decoration: underline;
         }
 
         .intro {
@@ -62,53 +47,7 @@
         .links a {
             color: #666;
         }
-        
-        section {
-            margin-bottom: 60px;
-        }
-        
-        h2 {
-            font-family: 'Courier New', monospace;
-            font-size: 1.2em;
-            font-weight: normal;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .article {
-            margin-bottom: 25px;
-        }
-        
-        .article-title {
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-        
-        .article-title a {
-            color: #000;
-            text-decoration: none;
-            border-bottom: 1px solid #ccc;
-        }
-        
-        .article-title a:hover {
-            border-bottom: 1px solid #000;
-        }
-        
-        .tag {
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            color: #666;
-            margin-left: 8px;
-        }
-        
-        .article-blurb {
-            font-size: 0.95em;
-            color: #333;
-            line-height: 1.5;
-            padding-left: 15px;
-        }
-        
+
         footer {
             margin-top: 80px;
             padding-top: 20px;
@@ -122,11 +61,6 @@
 <body>
     <header>
         <h1>Chuck Owen</h1>
-        <nav>
-            <a href="#research">research</a>
-            <a href="#leadership">leadership</a>
-            <a href="#engineering">engineering</a>
-        </nav>
         <p class="intro">I'm an engineer at heart, but I got here backwards. I spent eight years running a multi-state aviation business — the P&amp;L, the people, the weather delays — before deciding to head out on walkabout. I left the director's office to go build things for a while, and it was the best decision I've ever made.</p>
         <p class="intro">Since then, I've had the pleasure of working on technology flown on the International Space Station, technology that sends bits of data riding on light waves through the depths of space, and technology that carries light across continents. The building hasn't stopped, but it turns out the years running a business never left me either. These days I direct a large program across four engineering disciplines, lead two AI research efforts I carried from proposal through funding, and am finishing an M.S. in artificial intelligence at NJIT in whatever hours are left. Engineering is my heart; pulling teams together around hard problems is my strength.</p>
         <p class="intro">This is the site where I write about the things that interest me.</p>
@@ -134,108 +68,6 @@
             <a href="https://www.linkedin.com/in/charlesleeowen">linkedin</a> · chuck [at] chuckowen.co
         </div>
     </header>
-
-    <section id="research">
-        <h2>Research</h2>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/research-articles/mamba-optical-receiver.html">Mamba as a Coherent Optical Receiver</a>
-                <span class="tag">[state-space models]</span>
-            </div>
-            <div class="article-blurb">
-                A bidirectional state-space model that learns a receiver's DSP chain from data: dispersion, phase noise, and the error-correction plumbing it took to close the link. From a deep learning course project that got out of hand.
-            </div>
-        </div>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/research-articles/automl-as-instrument.html">AutoML as Instrument, Not Driver</a>
-                <span class="tag">[in progress]</span>
-            </div>
-            <div class="article-blurb">
-                An LLM research agent already knows which model to pick and wins by engineering the pipeline. The optimizer's remaining job is being a cheap subroutine. Findings so far from an ongoing study.
-            </div>
-        </div>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/research-articles/failure-modes-llm-automl.html">Failure Modes and Remediations in LLM-Driven Automated Machine Learning: A Case Study on Network Intrusion Detection</a>
-                <span class="tag">[llm automl]</span>
-            </div>
-            <div class="article-blurb">
-                An LLM rewrites its own intrusion-detection script in a closed loop and hits the benchmark almost immediately. The interesting part is the six ways the loop broke, and how few of them were machine learning problems.
-            </div>
-        </div>
-    </section>
-
-    <section id="leadership">
-        <h2>Leadership</h2>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/leadership-articles/delegation-is-not-a-hands-off-sport.html">Delegation Is Not a Hands-Off Sport</a>
-                <span class="tag">[management]</span>
-            </div>
-            <div class="article-blurb">
-                There’s a version of delegation that isn’t really delegation at all. The line between empowerment and abandonment is drawn by everything that happens after the handoff.
-            </div>
-        </div>
-
-        <div class="article">
-        <div class="article-title">
-            <a href="/leadership-articles/why-technical-mastery-isnt-enough.html">Why Technical Mastery Isn’t Enough</a>
-            <span class="tag">[career]</span>
-        </div>
-        <div class="article-blurb">
-            Technical excellence can get you noticed early, but without self-understanding and communication, it becomes a career ceiling.
-        </div>
-    </div>
-        
-        <div class="article">
-            <div class="article-title">
-                <a href="/leadership-articles/the-accountability-vacuum.html">The Accountability Vacuum</a>
-                <span class="tag">[management]</span>
-            </div>
-            <div class="article-blurb">
-                Responsibility flows down while authority and information stay at the top. How to recognize the setup, and what to do from inside one.
-            </div>
-        </div>
-    </section>
-
-    <section id="engineering">
-        <h2>Engineering</h2>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/engineering-articles/vr-discovery-framework.html">Manufacturing Executability</a>
-                <span class="tag">[security]</span>
-            </div>
-            <div class="article-blurb">
-                A pipeline that finds memory-safety bugs in binaries with no source, then proves each one with a crash that reproduces every time. The hard part isn't the analysis — it's manufacturing a way to run code that was never meant to be run on its own.
-            </div>
-        </div>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/engineering-articles/buzz-plugin-rce-disclosure.html">Anatomy of a Plugin-Install RCE</a>
-                <span class="tag">[disclosure]</span>
-            </div>
-            <div class="article-blurb">
-                A transcription app I use added a plugin system. Installing a plugin ran its code before checking whether it was valid, over plaintext HTTP, with no signature. A walk through the finding and the responsible-disclosure report I filed.
-            </div>
-        </div>
-
-        <div class="article">
-            <div class="article-title">
-                <a href="/engineering-articles/sanitizer-buzz-plugin.html">Sanitizer: Scrub Transcripts Before the LLM Sees Them</a>
-                <span class="tag">[privacy]</span>
-            </div>
-            <div class="article-blurb">
-                A Buzz plugin that swaps names, PII, and codenames for placeholders before a transcript goes to a cloud LLM, then restores the reply. The key never leaves your machine, and if a removal can’t be confirmed, there is no output.
-            </div>
-        </div>
-    </section>
 
     <footer>
         contact: chuck [at] chuckowen.co
