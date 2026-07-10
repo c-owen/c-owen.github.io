@@ -31,6 +31,21 @@
             margin-bottom: 20px;
         }
 
+        nav {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        nav a {
+            color: #000;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
         .intro {
             margin-top: 30px;
             font-size: 1.05em;
@@ -48,6 +63,52 @@
             color: #666;
         }
 
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            font-weight: normal;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .article {
+            margin-bottom: 25px;
+        }
+
+        .article-title {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .article-title a {
+            color: #000;
+            text-decoration: none;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .article-title a:hover {
+            border-bottom: 1px solid #000;
+        }
+
+        .tag {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .article-blurb {
+            font-size: 0.95em;
+            color: #333;
+            line-height: 1.5;
+            padding-left: 15px;
+        }
+
         footer {
             margin-top: 80px;
             padding-top: 20px;
@@ -61,6 +122,9 @@
 <body>
     <header>
         <h1>Chuck Owen</h1>
+        <nav>
+            <a href="#leadership">leadership</a>
+        </nav>
         <p class="intro">I'm an engineer at heart, but I got here backwards. I spent eight years running a multi-state aviation business — the P&amp;L, the people, the weather delays — before deciding to head out on walkabout. I left the director's office to go build things for a while, and it was the best decision I've ever made.</p>
         <p class="intro">Since then, I've had the pleasure of working on technology flown on the International Space Station, technology that sends bits of data riding on light waves through the depths of space, and technology that carries light across continents. The building hasn't stopped, but it turns out the years running a business never left me either. These days I direct a large program across four engineering disciplines, lead two AI research efforts I carried from proposal through funding, and am finishing an M.S. in artificial intelligence at NJIT in whatever hours are left. Engineering is my heart; pulling teams together around hard problems is my strength.</p>
         <p class="intro">This is the site where I write about the things that interest me.</p>
@@ -68,6 +132,20 @@
             <a href="https://www.linkedin.com/in/charlesleeowen">linkedin</a> · chuck [at] chuckowen.co
         </div>
     </header>
+
+    <section id="leadership">
+        <h2>Leadership</h2>
+
+        <div class="article">
+            <div class="article-title">
+                <a href="/leadership-articles/delegation-is-not-a-hands-off-sport.html">Delegation Is Not a Hands-Off Sport</a>
+                <span class="tag">[management]</span>
+            </div>
+            <div class="article-blurb">
+                Delegation requires a manager to step back without stepping so far away that the person taking ownership is left to manage the risk alone.
+            </div>
+        </div>
+    </section>
 
     <footer>
         contact: chuck [at] chuckowen.co
